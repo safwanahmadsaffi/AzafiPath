@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { monthlyFutureValue, requiredMonthly } from "@shared/finance";
 import { trpc } from "@/lib/trpc";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 const GOALS = ["Job", "Entrepreneur", "FAANG", "Researcher", "Abroad/Study"] as const;
 type Goal = (typeof GOALS)[number];
@@ -112,7 +113,30 @@ function Onboarding({ onComplete }: { onComplete: (profile: Profile) => void }) 
 }
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
+  const profileQuery = trpc.profile.get.useQuery(undefined, { enabled: isAuthenticated });
+  const leaksQuery = trpc.leaks.list.useQuery(undefined, { enabled: isAuthenticated });
+  const saveProfileMutation = trpc.profile.save.useMutation();
+  const addLeakMutation = trpc.leaks.add.useMutation({
+    onSuccess: () => {
+      utils.leaks.list.invalidate();
+    },
+  });
+  const utils = trpc.useUtils();
+
   const [profile, setProfile] = useState<Profile>(() => readStored("azadipath-profile", initialProfile));
+
+  useEffect(() => {
+    if (profileQuery.data) {
+      setProfile({ ageGroup: profileQuery.data.ageGroup as AgeGroup, goal: profileQuery.data.goal as Goal });
+    }
+  }, [profileQuery.data]);
+
+  useEffect(() => {
+    if (leaksQuery.data && leaksQuery.data.length > 0) {
+      setLeaks(leaksQuery.data.map(l => ({ id: l.id, label: l.label, amount: Number(l.amount), healthImpact: l.healthImpact, date: l.dateLabel })));
+    }
+  }, [leaksQuery.data]);
   const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("azadipath-onboarded"));
   const [monthlyInvestment, setMonthlyInvestment] = useState(5000);
   const [duration, setDuration] = useState(20);
@@ -156,6 +180,9 @@ export default function Home() {
     setRoadmap(roadmapByGoal[nextProfile.goal]);
     setShowOnboarding(false);
     localStorage.setItem("azadipath-onboarded", "true");
+    if (isAuthenticated) {
+      saveProfileMutation.mutate({ ageGroup: nextProfile.ageGroup, goal: nextProfile.goal });
+    }
     toast.success(`Your ${nextProfile.goal} path is ready.`);
   };
 
@@ -167,7 +194,12 @@ export default function Home() {
   const addLeak = () => {
     const amount = Number(leakAmount);
     if (!leakLabel.trim() || !amount || amount < 1) { toast.error("Add a name and a positive PKR amount."); return; }
-    setLeaks((current) => [{ id: Date.now(), label: leakLabel.trim(), amount, healthImpact: Math.min(10, Math.max(1, Math.round(amount / 250))), date: new Date().toLocaleDateString("en-PK", { day: "numeric", month: "short" }) }, ...current]);
+    const healthImpact = Math.min(10, Math.max(1, Math.round(amount / 250)));
+    const dateLabel = new Date().toLocaleDateString("en-PK", { day: "numeric", month: "short" });
+    if (isAuthenticated) {
+      addLeakMutation.mutate({ label: leakLabel.trim(), amount, healthImpact, dateLabel });
+    }
+    setLeaks((current) => [{ id: Date.now(), label: leakLabel.trim(), amount, healthImpact, date: dateLabel }, ...current]);
     setLeakAmount("500");
     toast.success(`${money(amount)} redirected from a financial leak.`);
   };

@@ -3,7 +3,8 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM } from "./_core/llm";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import * as db from "./db";
 
 const ageGroups = ["Under 18", "18", "18–25", "25+"] as const;
 const goals = ["Job", "Entrepreneur", "FAANG", "Researcher", "Abroad/Study"] as const;
@@ -47,6 +48,25 @@ export const appRouter = router({
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
       return { success: true } as const;
+    }),
+  }),
+  profile: router({
+    get: protectedProcedure.query(async ({ ctx }) => {
+      return (await db.getAzadiProfile(ctx.user.id)) ?? { ageGroup: "18", goal: "FAANG" };
+    }),
+    save: protectedProcedure.input(roadmapInput).mutation(async ({ ctx, input }) => {
+      await db.upsertAzadiProfile(ctx.user.id, input.ageGroup, input.goal);
+      return { success: true };
+    }),
+  }),
+  leaks: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      const rows = await db.getAzadiLeaks(ctx.user.id);
+      return rows.map(r => ({ ...r, amount: Number(r.amount) }));
+    }),
+    add: protectedProcedure.input(z.object({ label: z.string(), amount: z.number().min(1), healthImpact: z.number(), dateLabel: z.string() })).mutation(async ({ ctx, input }) => {
+      await db.addAzadiLeak(ctx.user.id, input.label, input.amount, input.healthImpact, input.dateLabel);
+      return { success: true };
     }),
   }),
   roadmap: router({

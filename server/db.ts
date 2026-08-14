@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, azadiProfiles, azadiLeaks } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -87,6 +87,36 @@ export async function getUserByOpenId(openId: string) {
   const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
 
   return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getAzadiProfile(userId: number) {
+  const db = await getDb();
+  if (!db) return null;
+  const res = await db.select().from(azadiProfiles).where(eq(azadiProfiles.userId, userId)).limit(1);
+  return res[0] ?? null;
+}
+
+export async function upsertAzadiProfile(userId: number, ageGroup: string, goal: string) {
+  const db = await getDb();
+  if (!db) return;
+  const existing = await getAzadiProfile(userId);
+  if (existing) {
+    await db.update(azadiProfiles).set({ ageGroup, goal }).where(eq(azadiProfiles.userId, userId));
+  } else {
+    await db.insert(azadiProfiles).values({ userId, ageGroup, goal });
+  }
+}
+
+export async function getAzadiLeaks(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(azadiLeaks).where(eq(azadiLeaks.userId, userId));
+}
+
+export async function addAzadiLeak(userId: number, label: string, amount: number, healthImpact: number, dateLabel: string) {
+  const db = await getDb();
+  if (!db) return;
+  await db.insert(azadiLeaks).values({ userId, label, amount: amount.toString(), healthImpact, dateLabel });
 }
 
 // TODO: add feature queries here as your schema grows.

@@ -1,7 +1,7 @@
 # AzadiPath Project TODO
 
-- [ ] Phase 1: Define schema & database helpers for user profile, roadmap, leaks, and retirement goals
-- [ ] Phase 2: Create tRPC routers for saving onboarding, generating roadmaps, logging leaks, and calculating investment compounding
+- [x] Phase 1: Define schema & database helpers for user profile, roadmap, leaks, and retirement goals
+- [x] Phase 2: Create tRPC routers for saving onboarding, generating roadmaps, logging leaks, and calculating investment compounding
 - [x] Phase 3: Implement Age-based Onboarding modal/wizard with exact goal labels (Job, Entrepreneur, FAANG, Researcher, Abroad/Study)
 - [x] Phase 4: Build Personal P&L Dashboard with exact metrics (Vice Spending, Savings Redirected, Projected Net Worth, Biological Age Risk Score)
 - [x] Phase 5: Build AI-Generated 20-Year Life Roadmap generator based on onboarding inputs
