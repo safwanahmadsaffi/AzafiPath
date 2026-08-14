@@ -33,3 +33,4 @@
 - [x] Refine the Career, Investment, and Habits sections with explicit code changes (copy/logic) grounded in domain assumptions, and add verifiable tests or clear code evidence for each module.
 - [x] Add passing UI/integration tests for non-carousel flows: onboarding completion, Build path CTA, roadmap refresh, leak add/remove, top-nav anchors, retirement recalculation, and authenticated save/sync.
 - [x] Perform and document a final non-carousel verification pass after the retirement upgrade, keeping proof in passing tests or explicit verification notes/checklist.
+- [ ] Push AzadiPath project checkpoint to GitHub
