@@ -21,3 +21,6 @@
 - [x] Verify room navigation controls and room CTAs on desktop and mobile before the next checkpoint
 - [x] Interactively verify room arrows, dots, swipe, Open this room, and Build my path on desktop and mobile
 - [x] Add reproducible automated or documented interaction coverage for the four-room carousel
+- [ ] Refine feature logic and copy with domain-expert realism (Career, Investment, Habits, Retirement)
+- [ ] Upgrade the Retirement Planner with structured asset allocation, inflation adjustment, and safe withdrawal rate calculation
+- [ ] Perform comprehensive button and interaction verification across all modules
