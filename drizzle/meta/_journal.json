@@ -1,5 +1,13 @@
 {
   "version": "7",
   "dialect": "mysql",
-  "entries": []
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1786726536386,
+      "tag": "0000_great_overlord",
+      "breakpoints": true
+    }
+  ]
 }
