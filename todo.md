@@ -16,3 +16,8 @@
 - [x] Add first-screen feature flashcards overview component on the welcome/home screen
 - [x] Implement interactive sliding feature preview cards on the welcome screen leading to onboarding
 - [x] Convert into a single-page website with top feature navigation anchoring to each module
+- [x] Rebuild home page with four animated feature rooms and slide-to-move interaction
+- [x] Add real swipe/drag gesture support to the four-room carousel or remove unsupported swipe wording
+- [x] Verify room navigation controls and room CTAs on desktop and mobile before the next checkpoint
+- [x] Interactively verify room arrows, dots, swipe, Open this room, and Build my path on desktop and mobile
+- [x] Add reproducible automated or documented interaction coverage for the four-room carousel

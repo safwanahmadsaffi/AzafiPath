@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { ArrowRight, BadgeIndianRupee, BarChart3, BrainCircuit, Check, ChevronRight, CircleHelp, Clock3, Coins, HeartPulse, LineChart, LockKeyhole, Plus, RefreshCw, Route, ShieldCheck, Sparkles, Target, TrendingUp, Wallet, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, BadgeIndianRupee, BarChart3, BrainCircuit, Check, ChevronLeft, ChevronRight, CircleHelp, Clock3, Coins, HeartPulse, LineChart, LockKeyhole, Plus, RefreshCw, Route, ShieldCheck, Sparkles, Target, TrendingUp, Wallet, X } from "lucide-react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { monthlyFutureValue, requiredMonthly } from "@shared/finance";
+import { cycleRoomIndex, selectRoomIndex, swipeDirection } from "@shared/roomCarousel";
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -98,6 +99,45 @@ const FEATURE_PREVIEWS = [
   { key: "retirement", icon: HeartPulse, label: "Health + Retirement", eyebrow: "04 · Long-range alignment", title: "Build a future your body can enjoy.", body: "Set a retirement age and corpus target, then see the monthly contribution needed in this planning simulation. Keep career, health, and financial independence connected.", points: ["Back-calculate a monthly target", "Link career milestones to financial capacity", "Wellness signals are guidance, not medical advice"] },
 ] as const;
 type FeatureKey = (typeof FEATURE_PREVIEWS)[number]["key"];
+
+const ROOM_FEATURES = [
+  { id: "roadmap", anchor: "roadmap", number: "01", eyebrow: "Career intelligence", label: "Life Roadmap", title: "Your next move, made visible.", description: "A 20-year route that turns your age and ambition into milestones for skills, education, earning power, and global options.", icon: Route, stat: "20 yrs", statLabel: "mapped forward", steps: ["Choose your direction", "Build proof of work", "Unlock global options"], accent: "#B7E45C" },
+  { id: "investments", anchor: "investments", number: "02", eyebrow: "Wealth building", label: "KSE-100 Simulator", title: "Let consistency become a strategy.", description: "Model regular monthly contributions to the KSE-100 index and see how time—not hype—can shape a long-range corpus.", icon: BarChart3, stat: "~20%", statLabel: "CAGR scenario", steps: ["Set a monthly amount", "Choose 10–30 years", "See the runway compound"], accent: "#8CE0B2" },
+  { id: "habits", anchor: "habits", number: "03", eyebrow: "Daily leverage", label: "Financial Leaks", title: "Redirect the small leaks.", description: "Capture impulse food, purchases, and wasted spending as financial leaks, then turn awareness into a repeatable savings contribution.", icon: Wallet, stat: "PKR", statLabel: "saved per habit", steps: ["Name the leak", "Log the amount", "Redirect it to your future"], accent: "#F2D17E" },
+  { id: "retirement", anchor: "retirement", number: "04", eyebrow: "Health + future", label: "Health + Retirement", title: "Build a future your body can enjoy.", description: "Connect wellness signals, career income, and a retirement corpus so your financial plan serves your whole life.", icon: HeartPulse, stat: "100", statLabel: "risk signal scale", steps: ["Set your retirement age", "Choose a corpus target", "Align income and wellbeing"], accent: "#F0A3A3" },
+] as const;
+
+export function FeatureRooms({ onBuildPath, onJump }: { onBuildPath: () => void; onJump: (id: string) => void }) {
+  const [activeRoomIndex, setActiveRoomIndex] = useState(0);
+  const pointerStartX = useRef<number | null>(null);
+  const activeRoom = ROOM_FEATURES[activeRoomIndex];
+  const RoomIcon = activeRoom.icon;
+  const moveRoom = (direction: number) => setActiveRoomIndex((current) => cycleRoomIndex(current, direction, ROOM_FEATURES.length));
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    pointerStartX.current = event.clientX;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (pointerStartX.current === null) return;
+    moveRoom(swipeDirection(pointerStartX.current, event.clientX));
+    pointerStartX.current = null;
+  };
+  const handlePointerCancel = () => { pointerStartX.current = null; };
+  return (
+    <section id="rooms" aria-label="AzadiPath four feature rooms" className="relative overflow-hidden rounded-[30px] bg-[#063D2A] p-5 text-white soft-shadow-lg sm:p-8 lg:p-10">
+      <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-[#0F8A55]/50 blur-3xl" />
+      <div className="absolute bottom-[-7rem] left-1/3 h-64 w-64 rounded-full bg-[#B7E45C]/10 blur-3xl" />
+      <div className="relative">
+        <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end"><div><SectionEyebrow tone="light">Pakistan @ 79 · Four rooms</SectionEyebrow><h2 className="mt-3 max-w-2xl font-display text-3xl font-bold tracking-[-0.06em] sm:text-5xl">Move through the rooms. Build the whole life.</h2><p className="mt-3 max-w-xl text-sm leading-6 text-white/60">Each room holds one part of your future. Slide through them, then enter your personalized Build my path flow.</p></div><div className="flex items-center gap-2"><button type="button" onClick={() => moveRoom(-1)} className="grid h-10 w-10 place-items-center rounded-full border border-white/15 text-white/70 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B7E45C]" aria-label="Previous feature room"><ChevronLeft className="h-4 w-4" /></button><button type="button" onClick={() => moveRoom(1)} className="grid h-10 w-10 place-items-center rounded-full bg-[#B7E45C] text-[#063D2A] transition-colors hover:bg-[#D4F48C] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white" aria-label="Next feature room"><ChevronRight className="h-4 w-4" /></button></div></div>
+        <div data-testid="room-surface" key={activeRoom.id} onPointerDown={handlePointerDown} onPointerUp={handlePointerUp} onPointerCancel={handlePointerCancel} className="mt-8 grid touch-pan-y cursor-grab select-none animate-in fade-in slide-in-from-right-6 duration-300 gap-4 active:cursor-grabbing lg:grid-cols-[1.05fr_.95fr]">
+          <div className="relative overflow-hidden rounded-[24px] p-6 sm:p-8" style={{ backgroundColor: activeRoom.accent, color: "#063D2A" }}><div className="absolute right-[-2rem] top-[-2rem] h-40 w-40 rounded-full border-[22px] border-[#063D2A]/10" /><div className="relative flex min-h-[250px] flex-col justify-between"><div className="flex items-start justify-between gap-4"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#063D2A] text-[#B7E45C]"><RoomIcon className="h-5 w-5" /></div><span className="font-mono text-4xl font-bold tracking-[-0.08em] text-[#063D2A]/25">{activeRoom.number}</span></div><div><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-[#063D2A]/60">{activeRoom.eyebrow}</p><h3 className="mt-2 max-w-md font-display text-3xl font-bold leading-[1.02] tracking-[-0.06em] sm:text-4xl">{activeRoom.title}</h3><p className="mt-3 max-w-lg text-sm leading-6 text-[#063D2A]/70">{activeRoom.description}</p></div></div></div>
+          <div className="rounded-[24px] border border-white/10 bg-white/[0.06] p-6 sm:p-8"><div className="flex items-end justify-between gap-4 border-b border-white/10 pb-5"><div><p className="font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-white/45">Room output</p><p className="mt-2 text-lg font-bold text-white">{activeRoom.label}</p></div><div className="text-right"><p className="font-display text-3xl font-bold tracking-[-0.06em] text-[#B7E45C]">{activeRoom.stat}</p><p className="text-[10px] text-white/45">{activeRoom.statLabel}</p></div></div><div className="mt-6 space-y-3">{activeRoom.steps.map((step, index) => <div key={step} className="flex items-center gap-3"><span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-[#B7E45C]/35 font-mono text-[10px] text-[#B7E45C]">0{index + 1}</span><span className="text-sm text-white/70">{step}</span><Check className="ml-auto h-3.5 w-3.5 text-[#B7E45C]" /></div>)}</div><div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center"><Button type="button" onClick={() => onJump(activeRoom.anchor)} className="h-11 rounded-xl bg-white px-5 text-xs font-bold text-[#063D2A] hover:bg-[#EAF4E8]">Open this room <ArrowRight className="ml-2 h-3.5 w-3.5" /></Button><button type="button" onClick={onBuildPath} className="text-left text-xs font-semibold text-[#B7E45C] hover:text-white">Build my path now</button></div></div>
+        </div>
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4"><div className="flex items-center gap-2" role="tablist" aria-label="Feature rooms">{ROOM_FEATURES.map((room, index) => <button type="button" key={room.id} onClick={() => setActiveRoomIndex(selectRoomIndex(index, ROOM_FEATURES.length))} role="tab" aria-selected={activeRoomIndex === index} aria-label={`Show ${room.label} room`} className={`h-2 rounded-full transition-all duration-300 ${activeRoomIndex === index ? "w-8 bg-[#B7E45C]" : "w-2 bg-white/25 hover:bg-white/60"}`} />)}</div><p className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">Swipe / tap arrows to move</p></div>
+      </div>
+    </section>
+  );
+}
 
 function Onboarding({ onComplete }: { onComplete: (profile: Profile) => void }) {
   const [activeFeature, setActiveFeature] = useState<FeatureKey | null>(null);
@@ -246,11 +286,12 @@ export default function Home() {
             <button type="button" onClick={() => jump("overview")} className="flex shrink-0 items-center gap-2 text-left"><span className="grid h-8 w-8 place-items-center rounded-xl bg-[#0B5D3B] font-display text-sm font-bold text-[#B7E45C]">A</span><span className="hidden font-display text-sm font-bold tracking-[-0.04em] text-[#123328] sm:inline">AzadiPath</span></button>
             <div className="h-5 w-px shrink-0 bg-[#D5E5D6]" />
             <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {[{ id: "overview", label: "Overview" }, { id: "roadmap", label: "Roadmap" }, { id: "investments", label: "Invest" }, { id: "habits", label: "Habits" }, { id: "retirement", label: "Retirement" }].map((item) => <button type="button" key={item.id} onClick={() => jump(item.id)} className="shrink-0 rounded-full px-3 py-2 text-[11px] font-semibold text-[#557166] transition-colors hover:bg-[#EAF4E8] hover:text-[#0B5D3B]">{item.label}</button>)}
+              {[{ id: "rooms", label: "Rooms" }, { id: "overview", label: "Overview" }, { id: "roadmap", label: "Roadmap" }, { id: "investments", label: "Invest" }, { id: "habits", label: "Habits" }, { id: "retirement", label: "Retirement" }].map((item) => <button type="button" key={item.id} onClick={() => jump(item.id)} className="shrink-0 rounded-full px-3 py-2 text-[11px] font-semibold text-[#557166] transition-colors hover:bg-[#EAF4E8] hover:text-[#0B5D3B]">{item.label}</button>)}
             </div>
             <Button type="button" onClick={() => setShowOnboarding(true)} className="h-9 shrink-0 rounded-xl bg-[#0B5D3B] px-3 text-[11px] font-bold text-white hover:bg-[#063D2A] sm:px-4">Build path <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Button>
           </div>
         </nav>
+        <div className="pt-5 sm:pt-8"><FeatureRooms onBuildPath={() => setShowOnboarding(true)} onJump={jump} /></div>
         <header id="overview" className="relative overflow-hidden border-b border-[#D5E5D6] py-8 sm:py-12">
           <div className="absolute right-[-4rem] top-[-5rem] h-64 w-64 rounded-full bg-[#EAF4E8]" />
           <div className="relative flex flex-col justify-between gap-8 lg:flex-row lg:items-end">
