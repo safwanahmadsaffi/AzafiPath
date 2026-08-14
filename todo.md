@@ -13,3 +13,4 @@
 - [x] Phase 11: Verify final production build and prepare checkpoint
 - [x] Add Vitest coverage for roadmap.generate structured AI output, fallback behavior, and input validation
 - [x] Save final project checkpoint after all verification passes
+- [x] Add first-screen feature flashcards overview component on the welcome/home screen
