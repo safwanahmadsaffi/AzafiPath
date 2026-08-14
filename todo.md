@@ -14,3 +14,4 @@
 - [x] Add Vitest coverage for roadmap.generate structured AI output, fallback behavior, and input validation
 - [x] Save final project checkpoint after all verification passes
 - [x] Add first-screen feature flashcards overview component on the welcome/home screen
+- [x] Implement interactive sliding feature preview cards on the welcome screen leading to onboarding

@@ -91,9 +91,19 @@ function MetricCard({ label, value, detail, icon: Icon, positive = true }: { lab
   );
 }
 
+const FEATURE_PREVIEWS = [
+  { key: "roadmap", icon: Route, label: "Life Roadmap", eyebrow: "01 · Career intelligence", title: "See the next 20 years as a sequence of moves.", body: "AzadiPath connects your age and ambition to practical milestones, from your next 90 days to the kind of work and optionality you want to build over two decades.", points: ["Milestones based on your chosen path", "Education, earning power, and health in one route", "A resilient fallback plan when priorities change"] },
+  { key: "investing", icon: BarChart3, label: "KSE-100 Simulator", eyebrow: "02 · Wealth building", title: "Make small monthly contributions visible.", body: "Explore a planning scenario for regular investing in the KSE-100 index. Adjust your monthly amount and time horizon to understand the role of consistency.", points: ["Default scenario uses ~20% CAGR", "Sliders for monthly contribution and duration", "Clear distinction between contributions and projected value"] },
+  { key: "leaks", icon: Wallet, label: "Financial Leaks", eyebrow: "03 · Habit intelligence", title: "Turn one avoided impulse into future capital.", body: "Log junk food, impulse buys, or wasted spending as financial leaks. The dashboard shows how redirecting them can support your savings habit and health goals.", points: ["Quick PKR leak logging", "Savings Redirected updates instantly", "Health-wealth correlation without medical diagnosis"] },
+  { key: "retirement", icon: HeartPulse, label: "Health + Retirement", eyebrow: "04 · Long-range alignment", title: "Build a future your body can enjoy.", body: "Set a retirement age and corpus target, then see the monthly contribution needed in this planning simulation. Keep career, health, and financial independence connected.", points: ["Back-calculate a monthly target", "Link career milestones to financial capacity", "Wellness signals are guidance, not medical advice"] },
+] as const;
+type FeatureKey = (typeof FEATURE_PREVIEWS)[number]["key"];
+
 function Onboarding({ onComplete }: { onComplete: (profile: Profile) => void }) {
+  const [activeFeature, setActiveFeature] = useState<FeatureKey | null>(null);
   const [ageGroup, setAgeGroup] = useState<AgeGroup>("18");
   const [goal, setGoal] = useState<Goal>("FAANG");
+  const selectedFeature = FEATURE_PREVIEWS.find((feature) => feature.key === activeFeature);
   return (
     <div className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-[#063D2A]/80 p-4 backdrop-blur-sm">
       <div className="signal-grid relative w-full max-w-2xl overflow-hidden rounded-[28px] bg-[#F8FBF4] soft-shadow-lg">
@@ -101,19 +111,24 @@ function Onboarding({ onComplete }: { onComplete: (profile: Profile) => void }) 
         <div className="relative p-6 sm:p-10">
           <div className="mb-10 flex items-center justify-between"><div><SectionEyebrow>Pakistan @ 79 · Your first signal</SectionEyebrow><h1 className="mt-3 max-w-md font-display text-3xl font-bold leading-[1.05] tracking-[-0.06em] text-[#123328] sm:text-5xl">Start where you are. Build where Pakistan is going.</h1></div><div className="hidden h-12 w-12 place-items-center rounded-2xl bg-[#B7E45C] text-[#063D2A] sm:grid"><Sparkles className="h-5 w-5" /></div></div>
           <p className="max-w-xl text-sm leading-6 text-[#557166]">AzadiPath turns your age, ambition, health, and money habits into one clear starting route. This is a planning simulation—not a promise of returns.</p>
-          <div className="mt-6 grid gap-2 sm:grid-cols-2" aria-label="AzadiPath feature overview">
-            {[
-              { icon: Route, label: "Life Roadmap", text: "AI maps your next 20 years from today’s starting point." },
-              { icon: BarChart3, label: "KSE-100 Simulator", text: "See how monthly investing could compound over time." },
-              { icon: Wallet, label: "Financial Leaks", text: "Turn impulse spending into savings you can redirect." },
-              { icon: HeartPulse, label: "Health + Retirement", text: "Align habits, career income, and your future corpus." },
-            ].map(({ icon: Icon, label, text }) => (
-              <div key={label} className="flex items-start gap-3 rounded-2xl border border-[#D5E5D6] bg-white/70 p-3.5 transition-colors hover:border-[#A8D99F] hover:bg-white">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#EAF4E8] text-[#0F8A55]"><Icon className="h-4 w-4" /></div>
-                <div><p className="text-xs font-bold text-[#123328]">{label}</p><p className="mt-1 text-[11px] leading-4 text-[#557166]">{text}</p></div>
-              </div>
-            ))}
-          </div>
+          {selectedFeature ? (
+            <div className="mt-6 animate-in fade-in slide-in-from-right-4 duration-300 rounded-[22px] border border-[#BBDCB8] bg-white/80 p-5 sm:p-6" aria-live="polite">
+              <div className="flex items-start justify-between gap-4"><div className="flex items-center gap-3"><div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0B5D3B] text-[#B7E45C]"><selectedFeature.icon className="h-5 w-5" /></div><div><SectionEyebrow>{selectedFeature.eyebrow}</SectionEyebrow><p className="mt-1 text-sm font-bold text-[#123328]">{selectedFeature.label}</p></div></div><button type="button" onClick={() => setActiveFeature(null)} className="rounded-full border border-[#D5E5D6] px-3 py-1.5 text-[11px] font-semibold text-[#557166] transition-colors hover:border-[#0F8A55] hover:text-[#0F8A55]">All features</button></div>
+              <h2 className="mt-6 max-w-lg font-display text-2xl font-bold leading-tight tracking-[-0.05em] text-[#123328] sm:text-3xl">{selectedFeature.title}</h2>
+              <p className="mt-3 max-w-xl text-sm leading-6 text-[#557166]">{selectedFeature.body}</p>
+              <div className="mt-5 grid gap-2 sm:grid-cols-3">{selectedFeature.points.map((point) => <div key={point} className="rounded-xl bg-[#EAF4E8] px-3 py-2.5 text-[11px] leading-4 text-[#315B49]">{point}</div>)}</div>
+              <button type="button" onClick={() => setActiveFeature(null)} className="mt-5 inline-flex items-center text-xs font-bold text-[#0F8A55] hover:text-[#063D2A]">Select your starting age & goal <ArrowRight className="ml-2 h-3.5 w-3.5" /></button>
+            </div>
+          ) : (
+            <div className="mt-6 grid gap-2 sm:grid-cols-2" aria-label="AzadiPath feature overview">
+              {FEATURE_PREVIEWS.map(({ key, icon: Icon, label, body }) => (
+                <button type="button" key={key} onClick={() => setActiveFeature(key)} className="group flex items-start gap-3 rounded-2xl border border-[#D5E5D6] bg-white/70 p-3.5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-[#A8D99F] hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0F8A55]">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#EAF4E8] text-[#0F8A55]"><Icon className="h-4 w-4" /></div>
+                  <div className="min-w-0"><p className="text-xs font-bold text-[#123328]">{label}</p><p className="mt-1 text-[11px] leading-4 text-[#557166]">{body}</p><span className="mt-2 inline-flex items-center text-[10px] font-bold text-[#0F8A55] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">View preview <ChevronRight className="ml-1 h-3 w-3" /></span></div>
+                </button>
+              ))}
+            </div>
+          )}
           <div className="mt-10 space-y-8">
             <fieldset><legend className="mb-3 text-sm font-semibold text-[#123328]">Where are you starting?</legend><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{(["Under 18", "18", "18–25", "25+"] as AgeGroup[]).map((item) => <button key={item} onClick={() => setAgeGroup(item)} className={`rounded-2xl px-3 py-4 text-left text-sm font-semibold transition-all ${ageGroup === item ? "bg-[#0B5D3B] text-white shadow-lg" : "bg-[#EAF4E8] text-[#557166] hover:bg-[#DDEBDD]"}`}><span className="block font-mono text-[10px] uppercase tracking-widest opacity-60">Age group</span><span className="mt-2 block">{item}</span></button>)}</div></fieldset>
             <fieldset><legend className="mb-3 text-sm font-semibold text-[#123328]">What future are you building?</legend><div className="grid gap-2 sm:grid-cols-5">{GOALS.map((item) => <button key={item} onClick={() => setGoal(item)} className={`min-h-16 rounded-2xl px-3 py-3 text-left text-xs font-semibold transition-all ${goal === item ? "bg-[#0F8A55] text-white shadow-lg" : "bg-[#EAF4E8] text-[#557166] hover:bg-[#DDEBDD]"}`}>{item}</button>)}</div></fieldset>
