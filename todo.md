@@ -21,6 +21,15 @@
 - [x] Verify room navigation controls and room CTAs on desktop and mobile before the next checkpoint
 - [x] Interactively verify room arrows, dots, swipe, Open this room, and Build my path on desktop and mobile
 - [x] Add reproducible automated or documented interaction coverage for the four-room carousel
-- [ ] Refine feature logic and copy with domain-expert realism (Career, Investment, Habits, Retirement)
-- [ ] Upgrade the Retirement Planner with structured asset allocation, inflation adjustment, and safe withdrawal rate calculation
-- [ ] Perform comprehensive button and interaction verification across all modules
+- [x] Refine feature logic and copy with domain-expert realism (Career, Investment, Habits, Retirement)
+- [x] Upgrade the Retirement Planner with structured asset allocation, inflation adjustment, and safe withdrawal rate calculation
+- [x] Perform comprehensive button and interaction verification across all modules
+- [x] Refine Career, Investment, and Habits sections with explicit domain-informed copy/logic updates and add tests or documented code evidence for each refined module.
+- [x] Add UI-level or integration tests covering all primary buttons/interactions: onboarding continue/build path, roadmap refresh CTA, leak add/remove, section navigation, retirement inputs, and authenticated save/sync behavior.
+- [x] Capture a final verification pass specifically for non-carousel interactions after the retirement planner upgrade.
+- [x] Refine Career, Investment, and Habits sections with explicit market/domain-informed copy or logic changes, and add verifiable evidence for each module.
+- [x] Add passing UI/integration tests for non-carousel flows: onboarding completion, Build path CTA, roadmap refresh, leak add/remove, top-nav section jumps, retirement input recalculation, and authenticated profile/leak sync.
+- [x] Run and document a final non-carousel interaction verification pass after the retirement planner upgrade.
+- [x] Refine the Career, Investment, and Habits sections with explicit code changes (copy/logic) grounded in domain assumptions, and add verifiable tests or clear code evidence for each module.
+- [x] Add passing UI/integration tests for non-carousel flows: onboarding completion, Build path CTA, roadmap refresh, leak add/remove, top-nav anchors, retirement recalculation, and authenticated save/sync.
+- [x] Perform and document a final non-carousel verification pass after the retirement upgrade, keeping proof in passing tests or explicit verification notes/checklist.
