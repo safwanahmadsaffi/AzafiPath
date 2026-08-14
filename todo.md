@@ -34,3 +34,4 @@
 - [x] Add passing UI/integration tests for non-carousel flows: onboarding completion, Build path CTA, roadmap refresh, leak add/remove, top-nav anchors, retirement recalculation, and authenticated save/sync.
 - [x] Perform and document a final non-carousel verification pass after the retirement upgrade, keeping proof in passing tests or explicit verification notes/checklist.
 - [ ] Push AzadiPath project checkpoint to GitHub
+- [ ] Create new repository and push AzadiPath to GitHub
