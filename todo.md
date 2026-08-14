@@ -15,3 +15,4 @@
 - [x] Save final project checkpoint after all verification passes
 - [x] Add first-screen feature flashcards overview component on the welcome/home screen
 - [x] Implement interactive sliding feature preview cards on the welcome screen leading to onboarding
+- [x] Convert into a single-page website with top feature navigation anchoring to each module
